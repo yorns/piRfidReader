@@ -320,7 +320,7 @@ Status Rfid::auth(uint8_t authMode, uint8_t BlockAddr, const std::vector<uint8_t
 
 
 
-        std::cout << "Setting up other registers\n";
+        std::cout << "Setting up SPI registers for RFID\n";
 
         writeToRegister(Register::TModeReg, 0x8D);
         writeToRegister(Register::TPrescalerReg, 0x3E);
@@ -331,6 +331,7 @@ Status Rfid::auth(uint8_t authMode, uint8_t BlockAddr, const std::vector<uint8_t
         writeToRegister(Register::ModeReg, 0x3D);
 
         setAntennaOn();
+        std::cout << "SPI: register done\n";
 
 
     }

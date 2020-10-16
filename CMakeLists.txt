@@ -13,8 +13,52 @@ find_package( Boost 1.70.0 REQUIRED COMPONENTS system)
 
 message("server build")
 
-add_executable(${PROJECT_NAME} testSequence.cpp spi.cpp spi.h PCD_Command.h PICC_Command.h Register.h rfid.cpp rfid.h Debounce.cpp Debounce.h repeattimer.h)
+add_executable( read_rfid
+    read_rfid.cpp
+    spi.cpp spi.h
+    PCD_Command.h PICC_Command.h
+    Register.h
+    rfid.cpp rfid.h
+    Debounce.cpp Debounce.h
+    repeattimer.h
+    table.h table.cpp
+    stickentry.h stickentry.cpp
+    rfidinterface.h rfidinterface.cpp
+
+    )
+
+set_target_properties(read_rfid PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
+
+target_include_directories(
+        read_rfid
+        PUBLIC
+        ${CMAKE_SOURCE_DIR}
+        ${Boost_INCLUDE_DIRS}
+)
+
+target_link_libraries( read_rfid
+        Threads::Threads
+        ${Boost_LIBRARIES}
+        snc_client
+)
+
+# ----------------------------------------------------------------
+
+add_executable(${PROJECT_NAME}
+    spi_rfid.cpp
+    spi.cpp spi.h
+    PCD_Command.h PICC_Command.h
+    Register.h
+    rfid.cpp rfid.h
+    Debounce.cpp Debounce.h
+    repeattimer.h
+    table.h table.cpp
+    stickentry.h stickentry.cpp
+    rfidinterface.h rfidinterface.cpp
+    )
+
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
+
 target_include_directories(
         ${PROJECT_NAME}
         PUBLIC
@@ -27,6 +71,8 @@ target_link_libraries(${PROJECT_NAME}
         ${Boost_LIBRARIES}
         snc_client
 )
+
+# ----------------------------------------------------------------
 
 add_executable(requester requester.cpp)
 set_target_properties(requester PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)

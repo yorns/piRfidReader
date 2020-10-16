@@ -40,14 +40,14 @@ SPI::SPI() {
     }
 
     std::cout << "opening device <"<< m_device << "> with\n";
-    std::cout << "mode: " << m_mode << "\n";
-    std::cout << "bits: " << m_bits << "\n";
+    std::cout << "mode: " << int(m_mode) << "\n";
+    std::cout << "bits: " << int(m_bits) << "\n";
     std::cout << "speed: " << m_speed << "\n";
     std::cout << "delay: " << m_delay << "\n";
 
     m_fd = open(m_device, O_RDWR);
     if (m_fd < 0) {
-        pabort("can't open device");
+        pabort("can't open spi device");
     }
 
     ret = ioctl(m_fd, SPI_IOC_WR_MODE, &spi_mode);

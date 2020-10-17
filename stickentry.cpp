@@ -1,5 +1,5 @@
 #include "stickentry.h"
-
+#include <sstream>
 
 StickEntry::StickEntry(uint64_t id, std::string &&albumID, std::string &&titleID, uint32_t position, StickFunctionality stick, StickNameType stickNameType)
     : m_id(id),
@@ -96,7 +96,11 @@ bool StickEntry::isSameAlbum(const StickEntry &entry) {
 
 nlohmann::json StickEntry::toJson() const {
     nlohmann::json entry;
-    entry["id"] = m_id;
+
+    std::stringstream tmp;
+    tmp << std::hex << m_id;
+
+    entry["id"] = tmp.str();
 
     if (!m_album.empty() && m_stickNameType == StickNameType::isName)
         entry["album"] = m_album;
@@ -121,7 +125,10 @@ nlohmann::json StickEntry::toJson() const {
 
 bool StickEntry::fromJson(const nlohmann::json &entry) {
     try {
-        m_id = entry.at("id");
+        std::string id_str = entry.at("id");
+        std::stringstream tmp;
+        tmp << std::hex << id_str;
+        tmp >> m_id;
         if (entry.find("album") != entry.end() && m_stickNameType != StickNameType::isID) {
             m_album = entry.at("album");
             m_stickNameType = StickNameType::isName;
@@ -140,7 +147,7 @@ bool StickEntry::fromJson(const nlohmann::json &entry) {
             m_stickNameType = StickNameType::isID;
         } else { std::cerr << "entry is missing title information\n"; }
 
-        m_position = entry.at("postion");
+        m_position = entry.at("position");
         m_stickType = entry.at("freeStick")?StickFunctionality::freeStick:StickFunctionality::boundStick;
 
     } catch(std::exception& ex) {

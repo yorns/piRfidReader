@@ -15,6 +15,14 @@ StickEntry &Table::getCurrent() {
     return *m_currentStickItem;
 }
 
+void Table::setCurrent(uint64_t keyID) {
+    m_currentStickItem =
+            std::find_if(std::begin(m_table),
+                         std::end(m_table),
+                         [&keyID](const auto& elem) { return elem.getKeyID() == keyID; });
+
+}
+
 std::optional<StickEntry> Table::find(uint64_t keyID) {
     auto iter = std::find_if(std::begin(m_table), std::end(m_table), [&keyID](const auto& elem) { return elem.getKeyID() == keyID; });
 
@@ -56,7 +64,7 @@ void Table::writeStickEntries() {
     }
 
     std::ofstream output(m_configFileName);
-    output << jsonfile;
+    output << jsonfile.dump(2);
     output.close();
 }
 

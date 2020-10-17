@@ -25,7 +25,7 @@ enum class StickNameType {
 };
 
 class StickEntry {
-    uint64_t m_id {0};
+    uint64_t m_id;
     std::string m_albumID;
     std::string m_album;
     std::string m_titleID;

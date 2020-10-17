@@ -45,7 +45,7 @@ int main()
     // send data through snc
     snc::Client client("cardreader", ioc, "127.0.0.1", 12001);
 
-    auto table = Table();
+    auto table = Table("/tmp/rfidTagConfig.json");
     table.readStickDatabase();
 
     client.broadcastHandler([&table](const std::string& , const std::string& msg) {
@@ -55,6 +55,7 @@ int main()
             auto broadcastMsg = jsonMsg.find("SongBroadcastMessage");
             if (broadcastMsg != jsonMsg.end()) {
                 table.updateFromJson(*broadcastMsg);
+                table.writeStickEntries(); // persist table
             }
         } catch (std::exception& ex) {
             std::cerr << "exception <"<<ex.what() << ">\n"<<msg<<"\n";
@@ -72,6 +73,7 @@ int main()
             // is this a release or a connect?
             if (id != 0x0) {
                 action = Action::connect;
+                table.setCurrent(id);
             } else {
                 action = Action::release; // just to be clear here
 

@@ -20,6 +20,7 @@ public:
 
     bool hasCurrent();
     StickEntry& getCurrent();
+    void setCurrent(uint64_t keyID);
 
     std::optional<StickEntry> find(uint64_t keyID);
 

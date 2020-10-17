@@ -4,15 +4,10 @@
 #include <boost/asio.hpp>
 #include <nlohmann/json.hpp>
 #include "stickentry.h"
-#include "table.h"
 #include "rfidinterface.h"
 
 std::optional<uint64_t> generateID(std::vector<uint8_t> cardId)
 {
-    std::cout << "New card detected with ID (LSB order) [";
-    for (const auto& val : cardId)
-        std::cout << " 0x"<<std::hex << static_cast<int>(val);
-    std::cout << " ]\n";
     if (cardId.size() == 5) {
 
         int shift {0};
@@ -37,10 +32,9 @@ int main()
     // create the rfid interface to the hardware
     RfidInterface rfidInterface(ioc);
 
-    auto table = Table();
-    table.readStickDatabase();
+    uint64_t connected { 0x00 };
 
-    auto keyHandler = [&table](std::vector<uint8_t> cardId) {
+    auto keyHandler = [&connected](std::vector<uint8_t> cardId) {
 
        if (auto _id = generateID(cardId)) {
 
@@ -50,24 +44,15 @@ int main()
             // is this a release or a connect?
             if (id != 0x0) {
                 action = Action::connect;
+                std::cout << "connect: 0x" << std::hex << id << std::dec << "\n";
+                connected = id;
             } else {
-                action = Action::release; // just to be clear here
-
-                if (table.hasCurrent()) {
-                    id = table.getCurrent().getKeyID();
+                if (connected != 0x00) {
+                    action = Action::release; // just to be clear here
+                    std::cout << "disconnect: 0x" << std::hex << connected << std::dec << "\n";
+                    connected = 0x00;
                 }
-                else {
-                    std::cerr << "Error: release with unknown ID\n";
-                    return;
-                }
-
             }
-
-            if (auto stickElem = table.find(id)) {
-                std::cout << stickElem->dump();
-                return;
-            }
-            std::cerr << "unknown stick\n";
        }
        else {
            std::cerr << "cannot generate key id\n";

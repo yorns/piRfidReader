@@ -35,7 +35,7 @@ std::optional<uint64_t> generateID(std::vector<uint8_t> cardId)
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
     boost::asio::io_context ioc;
 
@@ -45,7 +45,12 @@ int main()
     // send data through snc
     snc::Client client("cardreader", ioc, "127.0.0.1", 12001);
 
-    auto table = Table("/tmp/rfidTagConfig.json");
+    std::string tableConfigFile;
+    if (argc == 2) {
+        tableConfigFile = argv[1];
+    }
+
+    auto table = Table(tableConfigFile);
     table.readStickDatabase();
 
     client.broadcastHandler([&table](const std::string& , const std::string& msg) {
@@ -73,7 +78,8 @@ int main()
             // is this a release or a connect?
             if (id != 0x0) {
                 action = Action::connect;
-                table.setCurrent(id);
+                if (!table.setCurrent(id))
+                    return;
             } else {
                 action = Action::release; // just to be clear here
 
@@ -89,6 +95,8 @@ int main()
 
             if (auto stickElem = table.find(id)) {
                 auto message = stickElem->generateCmdMsg(action);
+                if (action == Action::release)
+                    table.unsetCurrent();
                 std::cout << "send message: " << message.dump(2) << "\n";
                 client.send(snc::Client::SendType::cl_send, "audioserver", message.dump());
                 return;

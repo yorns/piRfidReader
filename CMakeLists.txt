@@ -8,6 +8,8 @@ if (BOOST_DIR)
   set(BOOST_ROOT ${BOOST_DIR})
 endif (BOOST_DIR)
 
+include(GNUInstallDirs)
+
 find_package( Threads REQUIRED)
 find_package( Boost 1.70.0 REQUIRED COMPONENTS system)
 
@@ -24,8 +26,7 @@ add_executable( read_rfid
     table.h table.cpp
     stickentry.h stickentry.cpp
     rfidinterface.h rfidinterface.cpp
-
-    )
+)
 
 set_target_properties(read_rfid PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
 
@@ -88,3 +89,33 @@ target_link_libraries(requester
         ${Boost_LIBRARIES}
         snc_client
 )
+
+# -----------------------------------------
+
+install(
+    TARGETS ${PROJECT_NAME} requester read_rfid
+    RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
+    )
+
+
+# ------------------------------------------
+
+set(LOCAL_CONFIG_DIR ${CMAKE_SOURCE_DIR}/conf)
+set(LOCAL_CONFIG_FILE ${LOCAL_CONFIG_DIR}/keyTable.json)
+
+set(INSTALL_CONFIG_DIR ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/audioserver/stick)
+set(INSTALL_CONFIG_FILE ${INSTALL_CONFIG_DIR}/keyTable.json)
+
+install ( DIRECTORY DESTINATION ${INSTALL_CONFIG_DIR} DIRECTORY_PERMISSIONS
+          OWNER_WRITE OWNER_READ OWNER_EXECUTE
+           GROUP_READ
+           WORLD_READ  )
+
+install(
+          FILES ${LOCAL_CONFIG_FILE} DESTINATION ${INSTALL_CONFIG_DIR}
+)
+
+# ------------------------------------------
+

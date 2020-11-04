@@ -1,9 +1,14 @@
 #include "table.h"
 
-std::string Table::defaultconfigFileName = std::string("/var/audioplayer/stick/stick.conf");
+std::string Table::defaultconfigFileName = std::string("/var/audioserver/stick/keyTable.json");
 
 Table::Table(std::string configFileName) {
-    m_configFileName = configFileName;
+    if (configFileName.empty()) {
+        m_configFileName = defaultconfigFileName;
+    }
+    else {
+        m_configFileName = configFileName;
+    }
     m_currentStickItem = m_table.end();
 }
 
@@ -15,13 +20,20 @@ StickEntry &Table::getCurrent() {
     return *m_currentStickItem;
 }
 
-void Table::setCurrent(uint64_t keyID) {
+bool Table::setCurrent(uint64_t keyID) {
+    auto oldCurrent = m_currentStickItem;
     m_currentStickItem =
             std::find_if(std::begin(m_table),
                          std::end(m_table),
                          [&keyID](const auto& elem) { return elem.getKeyID() == keyID; });
 
+    return m_currentStickItem != oldCurrent;
 }
+
+void Table::unsetCurrent() {
+    m_currentStickItem = std::end(m_table);
+}
+
 
 std::optional<StickEntry> Table::find(uint64_t keyID) {
     auto iter = std::find_if(std::begin(m_table), std::end(m_table), [&keyID](const auto& elem) { return elem.getKeyID() == keyID; });
@@ -38,6 +50,7 @@ std::optional<StickEntry> Table::find(uint64_t keyID) {
 
 void Table::readStickDatabase()
 {
+    std::cout << "read database information at: <"<<m_configFileName<<">\n";
     std::ifstream ifs(m_configFileName);
 
     if (ifs.good()) {

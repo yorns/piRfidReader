@@ -12,9 +12,9 @@ public:
 
 private:
     uint32_t detector_cnt {0};
-    uint32_t detectorMax {3};
-    std::vector<uint8_t> m_cardId_tmp {3,0};
-    std::vector<uint8_t> m_cardId {3,0};
+    uint32_t detectorMax {9};
+    std::vector<uint8_t> m_cardId_tmp {9,0};
+    std::vector<uint8_t> m_cardId {9,0};
     bool lock{false};
     Handler m_handler;
 

@@ -16,11 +16,12 @@ class Table {
     std::vector<StickEntry>::iterator m_currentStickItem;
 
 public:
-    Table(std::string configFileName = defaultconfigFileName);
+    Table(std::string configFileName = std::string());
 
     bool hasCurrent();
     StickEntry& getCurrent();
-    void setCurrent(uint64_t keyID);
+    bool setCurrent(uint64_t keyID);
+    void unsetCurrent();
 
     std::optional<StickEntry> find(uint64_t keyID);
 
